@@ -1,0 +1,19 @@
+{
+    "name": "agarage/ulog",
+    "description": "A PHP Logger",
+    "authors": [
+        {
+            "name": "nicholas",
+            "email": "spirit.line.523@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "AGarage\\ULog\\": "src/"
+        }
+    },
+    "require": {},
+    "require-dev": {
+        "doctrine/dbal": "^2.5"
+    }
+}
