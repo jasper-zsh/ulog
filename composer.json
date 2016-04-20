@@ -1,6 +1,9 @@
 {
     "name": "agarage/ulog",
     "description": "A PHP Logger",
+    "version": "0.0.1-dev",
+    "type": "library",
+    "keywords": ["php", "log", "logger"],
     "authors": [
         {
             "name": "nicholas",
