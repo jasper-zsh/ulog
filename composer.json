@@ -17,6 +17,7 @@
     },
     "require": {},
     "require-dev": {
-        "doctrine/dbal": "^2.5"
+        "doctrine/dbal": "^2.5",
+        "phpunit/phpunit": "^5.3"
     }
 }

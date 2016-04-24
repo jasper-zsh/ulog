@@ -10,6 +10,7 @@ namespace AGarage\ULog;
 
 
 use AGarage\ULog\Exception\IllegalConfigException;
+use AGarage\ULog\Storage\StorageInterface;
 use AGarage\ULog\Writer\WriterInterface;
 
 class ULog
@@ -22,7 +23,7 @@ class ULog
     const ERROR = 31;
     const FATAL = 41;
 
-    private $writers = [];
+    private $storages = [];
 
     private $host;
     private $service;
@@ -31,12 +32,12 @@ class ULog
 
     public function __construct($config = []) {
         $config = array_merge_recursive($config, $this->getDefaultConfiguration());
-        if (isset($config['writers'])) {
-            if (!is_array($config['writers'])) {
-                throw new IllegalConfigException($config, '"writers" is not array.');
+        if (isset($config['storages'])) {
+            if (!is_array($config['storages'])) {
+                throw new IllegalConfigException($config, '"storages" is not array.');
             }
-            foreach ($config['writers'] as $writerConfig) {
-                $this->addWriter($this->getWriter($writerConfig));
+            foreach ($config['storages'] as $writerConfig) {
+                $this->addStorage($this->getStorage($writerConfig));
             }
         }
         $this->host = $config['host'];
@@ -55,27 +56,34 @@ class ULog
     }
 
     /**
-     * @param array $writerConfig
-     * @return WriterInterface
+     * @param array $storageConfig
+     * @return StorageInterface
      * @throws IllegalConfigException
      */
-    private function getWriter(array $writerConfig) {
-        if (!isset($writerConfig['class'])) {
-            throw new IllegalConfigException($writerConfig, '"class" is not specified.');
+    private function getStorage(array $storageConfig) {
+        if (!isset($storageConfig['class'])) {
+            throw new IllegalConfigException($storageConfig, '"class" is not specified.');
         }
-        $writer = (new \ReflectionClass($writerConfig['class']))->newInstanceArgs([$writerConfig]);
-        if (!($writer instanceof WriterInterface)) {
-            throw new IllegalConfigException($writerConfig, '"class" does not implemented WriterInterface.');
+        $writer = (new \ReflectionClass($storageConfig['class']))->newInstanceArgs([$storageConfig]);
+        if (!($writer instanceof StorageInterface)) {
+            throw new IllegalConfigException($storageConfig, '"class" does not implemented StorageInterface.');
         }
         return $writer;
     }
 
-    public function addWriter(WriterInterface $writer) {
-        $this->writers[] = $writer;
+    public function addStorage(StorageInterface $storage) {
+        $this->storages[] = $storage;
     }
 
-    public function clearWriter() {
-        $this->writers = [];
+    /**
+     * @return array
+     */
+    public function getStorages() {
+        return $this->storages;
+    }
+
+    public function clearStorage() {
+        $this->storages = [];
     }
 
     public function setHost($host) {
@@ -109,10 +117,18 @@ class ULog
     }
 
     public function log($level, $tag, $log) {
-        foreach ($this->writers as $writer) {
-            /** @var WriterInterface $writer */
-            if ($level >= $writer->getLevel()) {
-                $writer->write($this->host, $this->service, $tag, $level, trim($log), $this->getCurrentTime());
+        $isException = $log instanceof \Exception;
+        $entity = new LogEntity($this->host, $this->service, $tag, $level, null, $this->getCurrentTime());
+        if (!$isException) {
+            $entity->setContent(trim($log));
+        }
+        foreach ($this->storages as $storage) {
+            /** @var StorageInterface $storage */
+            if ($level >= $storage->getLevel()) {
+                if ($isException) {
+                    $entity->setContent($storage->getFormatter()->stringifyException($log));
+                }
+                $storage->write($entity);
             }
         }
     }

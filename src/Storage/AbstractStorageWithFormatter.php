@@ -6,14 +6,14 @@
  * Time: 下午8:24
  */
 
-namespace AGarage\ULog\Writer;
+namespace AGarage\ULog\Storage;
 
 
 use AGarage\ULog\Exception\IllegalConfigException;
 use AGarage\ULog\Formatter\DefaultFormatter;
 use AGarage\ULog\Formatter\FormatterInterface;
 
-abstract class AbstractWriterWithFormatter implements WriterInterface
+abstract class AbstractStorageWithFormatter implements StorageInterface
 {
     protected $formatter;
 
@@ -34,6 +34,10 @@ abstract class AbstractWriterWithFormatter implements WriterInterface
             throw new IllegalConfigException($writerConfig['formatter'], '"class" does not implemented FormatterInterface');
         }
         $this->formatter = $formatter;
+    }
+
+    public function getFormatter() {
+        return $this->formatter;
     }
 
     private function getDefaultConfiguration() {
