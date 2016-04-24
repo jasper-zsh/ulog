@@ -42,6 +42,6 @@ class ULogReader
         }
         $this->storage->seekTo($start);
         $logs = $this->storage->read($count);
-        return array_reverse($logs);
+        return $logs;
     }
 }
