@@ -94,6 +94,7 @@ class DoctrineStorage implements StorageInterface
         foreach ($arr as &$result) {
             $logs[] = new LogEntity($result['host'], $result['service'], $result['tag'], $result['level'], $result['content'], $result['time']);
         }
+        return $logs;
     }
 
     /**
