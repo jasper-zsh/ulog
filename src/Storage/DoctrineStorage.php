@@ -46,6 +46,13 @@ class DoctrineStorage implements StorageInterface
         $qb = new QueryBuilder($this->conn);
         $qb->insert($this->tableName)
             ->values([
+                'host' => ':host',
+                'service' => ':service',
+                'tag' => ':tag',
+                'level' => ':level',
+                'content' => ':content',
+                'time' => ':time'
+            ])->setParameters([
                 'host' => $log->getHost(),
                 'service' => $log->getService(),
                 'tag' => $log->getTag(),
