@@ -17,30 +17,11 @@ class DefaultFormatter implements FormatterInterface
 
     public function format(LogEntity $log)
     {
-        switch ($log->getLevel()) {
-            case ULog::DEBUG:
-                $level = 'DEBUG';
-                break;
-            case ULog::INFO:
-                $level = 'INFO';
-                break;
-            case ULog::WARN:
-                $level = 'WARN';
-                break;
-            case ULog::ERROR:
-                $level = 'ERROR';
-                break;
-            case ULog::FATAL:
-                $level = 'FATAL';
-                break;
-            default:
-                $level = 'UNKNOWN '.$log->getLevel();
-                break;
-        }
-        $milli = $log->getLevel() % 1000;
+        $level = strtoupper($log->getLevel());
+        $milli = $log->getTime() % 1000;
         $time = date('Y-m-d H:m:s', $log->getTime() / 1000);
-        $content = str_replace("\n", '{\n}', $log->getContent());
-        return "$time.$milli - $level - {$log->getService()} @ {$log->getHost()} - {$log->getTag()} - $content";
+        $content = str_replace("\n", '{\n}', $log->getMessage());
+        return "$time.$milli - $level - {$log->getService()} @ {$log->getHost()} - $content";
     }
 
     public function __construct(array $formatterConfig)
@@ -68,7 +49,7 @@ class DefaultFormatter implements FormatterInterface
 
         $pos = strpos($str, ' - ');
         $levelStr = substr($str, 0, $pos);
-        $log->setLevel($this->levelStrToInt($levelStr));
+        $log->setLevel(strtolower($levelStr));
         $str = substr($str, $pos + 3);
 
         $pos = strpos($str, ' @ ');
@@ -81,32 +62,10 @@ class DefaultFormatter implements FormatterInterface
         $log->setHost($host);
         $str = substr($str, $pos + 3);
 
-        $pos = strpos($str, ' - ');
-        $tag = substr($str, 0, $pos);
-        $log->setTag($tag);
-        $str = substr($str, $pos + 3);
-
         $content = str_replace('{\n}', "\n", $str);
-        $log->setContent($content);
+        $log->setMessage($content);
 
         return $log;
-    }
-
-    private function levelStrToInt($levelStr) {
-        switch ($levelStr) {
-            case 'DEBUG':
-                return ULog::DEBUG;
-            case 'INFO':
-                return ULog::INFO;
-            case 'WARN':
-                return ULog::WARN;
-            case 'ERROR':
-                return ULog::ERROR;
-            case 'FATAL':
-                return ULog::FATAL;
-            default:
-                return intval(substr($levelStr, strlen('UNKNOWN ')));
-        }
     }
 
     public function stringifyException(\Exception $ex)

@@ -11,18 +11,12 @@ namespace AGarage\ULog;
 
 use AGarage\ULog\Exception\IllegalConfigException;
 use AGarage\ULog\Storage\StorageInterface;
-use AGarage\ULog\Writer\WriterInterface;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
-class ULog
+class ULog extends AbstractLogger
 {
-    const ALL = 0;
-    const OFF = 100;
-    const DEBUG = 1;
-    const INFO = 11;
-    const WARN = 21;
-    const ERROR = 31;
-    const FATAL = 41;
-
     private $storages = [];
 
     private $host;
@@ -30,8 +24,19 @@ class ULog
 
     private static $logger;
 
+    private static $levels = [
+        LogLevel::DEBUG => 0,
+        LogLevel::INFO => 1,
+        LogLevel::NOTICE => 2,
+        LogLevel::WARNING => 3,
+        LogLevel::ERROR => 4,
+        LogLevel::CRITICAL => 5,
+        LogLevel::ALERT => 6,
+        LogLevel::EMERGENCY => 7
+    ];
+
     public function __construct($config = []) {
-        $config = array_merge_recursive($config, $this->getDefaultConfiguration());
+        $config = array_merge($config, $this->getDefaultConfiguration());
         if (isset($config['storages'])) {
             if (!is_array($config['storages'])) {
                 throw new IllegalConfigException($config, '"storages" is not array.');
@@ -96,37 +101,17 @@ class ULog
         return $this;
     }
 
-    public function debug($tag, $log) {
-        $this->log(self::DEBUG, $tag, $log);
-    }
-
-    public function info($tag, $log) {
-        $this->log(self::INFO, $tag, $log);
-    }
-
-    public function warn($tag, $log) {
-        $this->log(self::WARN, $tag, $log);
-    }
-
-    public function error($tag, $log) {
-        $this->log(self::ERROR, $tag, $log);
-    }
-
-    public function fatal($tag, $log) {
-        $this->log(self::FATAL, $tag, $log);
-    }
-
-    public function log($level, $tag, $log) {
-        $isException = $log instanceof \Exception;
-        $entity = new LogEntity($this->host, $this->service, $tag, $level, null, $this->getCurrentTime());
+    public function log($level, $message, array $context = []) {
+        $isException = $message instanceof \Exception;
+        $entity = new LogEntity($this->host, $this->service, $level, null, $this->getCurrentTime());
         if (!$isException) {
-            $entity->setContent(trim($log));
+            $entity->setMessage(trim($message));
         }
         foreach ($this->storages as $storage) {
             /** @var StorageInterface $storage */
-            if ($level >= $storage->getLevel()) {
+            if (self::$levels[$level] >= self::$levels[$storage->getLevel()]) {
                 if ($isException) {
-                    $entity->setContent($storage->getFormatter()->stringifyException($log));
+                    $entity->setMessage($storage->getFormatter()->stringifyException($message));
                 }
                 $storage->write($entity);
             }

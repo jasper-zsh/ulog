@@ -1,7 +1,7 @@
 {
     "name": "agarage/ulog",
     "description": "A PHP Logger",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "library",
     "keywords": ["php", "log", "logger"],
     "authors": [
@@ -15,7 +15,9 @@
             "AGarage\\ULog\\": "src/"
         }
     },
-    "require": {},
+    "require": {
+        "psr/log": "^1.0"
+    },
     "require-dev": {
         "doctrine/dbal": "^2.5",
         "phpunit/phpunit": "^5.3"

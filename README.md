@@ -5,6 +5,7 @@ PHP日志组件，可以使用多种存储方式记录日志，并且可以自�
 ```php
 use AGarage\ULog\ULog as ULog;
 use AGarage\ULog\Writer\DoctrineStorage as DoctrineStorage;
+use Psr\Log\LogLevel as LogLevel;
 
 $config = [
     'host' => 'localhost',
@@ -37,7 +38,7 @@ $conn = \Doctrine\DBAL\DriverManager::getConnection([
 
 //创建一个DoctrineStorage
 $storage = new DoctrineStorage([
-    'level' => ULog::INFO
+    'level' => LogLevel::INFO
 ]);
 //为DoctrineStorage设置数据库连接
 $storage->setConnection($conn);
@@ -45,8 +46,8 @@ $storage->setConnection($conn);
 //向ULog添加Storage
 $logger->addStorage($storage);
 
-$logger->info('TAG', 'This log will be written by storages in $logger.');
-$anotherLogger->debug('TAG', 'This log will not written by storages in $anotherLogger.');
+$logger->info('This log will be written by storages in $logger.');
+$anotherLogger->debug('This log will not written by storages in $anotherLogger.');
 ```
 
 ## 配置说明
@@ -58,7 +59,7 @@ $anotherLogger->debug('TAG', 'This log will not written by storages in $anotherL
     'storages' => [          //Writers
         [
             'class' => 'AGarage\ULog\Storage\SingleFileStorage',  //Storage的类名（必须）
-            'level' => ULog::INFO   //大于该等级的日志将被记录（默认DEBUG）
+            'level' => LogLevel::INFO   //大于该等级的日志将被记录（默认DEBUG）
             'path' => '/tmp/ulog.log'   //日志文件路径（必须）
         ]
     ]
@@ -71,7 +72,7 @@ $anotherLogger->debug('TAG', 'This log will not written by storages in $anotherL
 ```php
 [
     'class' => 'AGarage\ULog\Storage\SingleFileStorage',  //Writer的类名（必须）
-    'level' => ULog::INFO   //大于该等级的日志将被记录（默认DEBUG）
+    'level' => LogLevel::INFO   //大于该等级的日志将被记录（默认DEBUG）
     'path' => '/tmp/ulog.log'   //日志文件路径（必须）
 ]
 ```
@@ -81,7 +82,7 @@ $anotherLogger->debug('TAG', 'This log will not written by storages in $anotherL
 ```php
 [
     'class' => 'AGarage\ULog\Storage\DoctrineStorage',
-    'level' => ULog::INFO   //默认DEBUG
+    'level' => LogLevel::INFO   //默认DEBUG
 ]
 ```
 初始化该类型Storage后需要调用`setConnection`方法为其设置数据库连接

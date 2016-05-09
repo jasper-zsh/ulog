@@ -48,16 +48,14 @@ class DoctrineStorage implements StorageInterface
             ->values([
                 'host' => ':host',
                 'service' => ':service',
-                'tag' => ':tag',
                 'level' => ':level',
-                'content' => ':content',
+                'message' => ':message',
                 'time' => ':time'
             ])->setParameters([
                 'host' => $log->getHost(),
                 'service' => $log->getService(),
-                'tag' => $log->getTag(),
                 'level' => $log->getLevel(),
-                'content' => $log->getContent(),
+                'message' => $log->getMessage(),
                 'time' => $log->getTime()
             ])->execute();
     }
@@ -99,7 +97,7 @@ class DoctrineStorage implements StorageInterface
     private function arrayToEntity(array $arr) {
         $logs = [];
         foreach ($arr as &$result) {
-            $logs[] = new LogEntity($result['host'], $result['service'], $result['tag'], $result['level'], $result['content'], $result['time']);
+            $logs[] = new LogEntity($result['host'], $result['service'], $result['level'], $result['message'], $result['time']);
         }
         return $logs;
     }
@@ -125,7 +123,8 @@ class DoctrineStorage implements StorageInterface
      */
     public function count()
     {
-        $stmt = $this->conn->executeQuery('select count(id) from `'.$this->tableName.'`');
-        return intval($stmt->fetch(\PDO::FETCH_BOUND)[0]);
+        $stmt = $this->conn->executeQuery('select count(id) as `lines` from `'.$this->tableName.'`');
+        $result = $stmt->fetch();
+        return intval($result['lines']);
     }
 }

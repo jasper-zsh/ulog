@@ -13,18 +13,16 @@ class LogEntity
 {
     protected $host;
     protected $service;
-    protected $tag;
     protected $level;
-    protected $content;
+    protected $message;
     protected $time;
 
-    public function __construct($host = null, $service = null, $tag = null, $level = null, $content = null, $time = null)
+    public function __construct($host = null, $service = null, $level = null, $message = null, $time = null)
     {
         $this->host = $host;
         $this->service = $service;
-        $this->tag = $tag;
         $this->level = $level;
-        $this->content = $content;
+        $this->message = $message;
         $this->time = $time;
     }
 
@@ -46,15 +44,6 @@ class LogEntity
         return $this;
     }
 
-    public function getTag() {
-        return $this->tag;
-    }
-
-    public function setTag($tag) {
-        $this->tag = $tag;
-        return $this;
-    }
-
     public function getLevel() {
         return $this->level;
     }
@@ -64,12 +53,12 @@ class LogEntity
         return $this;
     }
 
-    public function getContent() {
-        return $this->content;
+    public function getMessage() {
+        return $this->message;
     }
 
-    public function setContent($content) {
-        $this->content = $content;
+    public function setMessage($message) {
+        $this->message = $message;
         return $this;
     }
 

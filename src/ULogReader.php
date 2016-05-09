@@ -40,6 +40,7 @@ class ULogReader
         if ($start < 0) {
             $start = 0;
         }
+        var_dump($total);
         $this->storage->seekTo($start);
         $logs = $this->storage->read($count);
         return $logs;

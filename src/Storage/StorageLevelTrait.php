@@ -10,6 +10,7 @@ namespace AGarage\ULog\Storage;
 
 
 use AGarage\ULog\ULog;
+use Psr\Log\LogLevel;
 
 trait StorageLevelTrait
 {
@@ -26,7 +27,7 @@ trait StorageLevelTrait
 
     private function getDefaultLevelConfiguration() {
         return [
-            'level' => ULog::DEBUG
+            'level' => LogLevel::DEBUG
         ];
     }
 }
